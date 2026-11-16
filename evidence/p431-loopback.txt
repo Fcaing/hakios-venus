@@ -1,0 +1,28 @@
+# p431 - MHI data plane, LOOPBACK ch0 -> ch1
+
+Source: `venus-recon/p431.txt`, extracted from this round's loader log
+(`fastboot oem dump logdump` -> `cur-p431.bin` -> ASCII filter).
+Round tag in the log is `pcie_tag=p431`; the probe that printed these lines is `apply-390`.
+
+What it shows: the host posted a 16-byte payload on ch0 (`tre ptr 0xa03d0000 len 0x10`) and
+two receive buffers on ch1, then rang the channel-0 doorbell. At t=0 the buffers held:
+
+    buffer a: 534f494b 534f494c 534f494d 534f494e    (little-endian: 4b 49 4f 53 4c 49 4f 53 ...)
+    buffer b: beef0000 beef0001 beef0002 beef0003    (its own prefill, untouched)
+
+Buffer a is the payload the host wrote to ch0, byte for byte. er1 then held two events whose
+`dword3` low byte names the channel: `...00220000` (type 0x22, ch0) and `...01220000`
+(type 0x22, ch1).
+
+Conclusion: on a channel pair the firmware does provide (LOOPBACK), host TRE consumption,
+payload DMA and event delivery are all correct. What is missing on ch20/ch21 is therefore
+not the host's mechanics.
+
+apply-390 t0: ee 0x00000002 mh 0x00000201
+apply-390 a ch1: st 0x00000002 type 0x00000002 eri 0x00000001 rbase 0xa0209000 len 0x00000200 rp 0x00000002 wp 0xa0209000
+apply-390 b ch1: two buffers at 0xa03e0000/0xa03f0000 wp 0xa0209020, ringing 0x308
+apply-390 c ch0: st 0x00000002 rbase 0xa0208000 wp 0xa0208000
+apply-390 d ch0: tre ptr 0xa03d0000 len 0x10 wp 0xa0208010, ringing 0x300
+apply-390 f ECHO at 0 ms: a 534f494b 534f494c 534f494d 534f494e | b beef0000 beef0001 beef0002 beef0003
+pcie: 5:   21: apply-322 rx primed 32: rx[0] a0500000 00000000 00008000 00020200 rx[1f0] a05f8000 00000000 ch21 wp 0xa020d200
+== XNULOADER run (usb) ==

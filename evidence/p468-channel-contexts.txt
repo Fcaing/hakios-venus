@@ -1,0 +1,24 @@
+# p468 - the channel contexts are written by the firmware, not by us
+
+Source: `venus-recon/p468.txt`, same extraction path. This round ran with
+`pcie_chanstart=0`: the host never published a channel context.
+
+What it shows: before the host touches anything, ch20 and ch21 already read `0x00000202`
+(RUNNING + burst mode 2) with ring bases `0xa020c000` / `0xa020d000`. Publishing `0x0202`
+at handover is what lets AMSS boot; publishing `0x0200` (chstate 0) keeps it from booting
+at all.
+
+Two consequences this project had to learn the hard way:
+
+  * the firmware builds these channel objects itself and does read them during the
+    SBL -> AMSS handover, so "channel context content" was never the variable to tune;
+  * "the device never wrote a context" (round p398) was a misreading of a round in which
+    the host had already written it.
+
+pcie: 5:   21: apply-299 er0 rbase 0xa0204000 rlen 0x00001000 rp 0xa0204000 type 0x00000001 ch20 0x00000202 ch21 0x00000202
+pcie: 5:   21: apply-262 t=0 mark 0x00005a5a er0 wp 0x00000000 ch20 wp 0x00000000 ee 0x00000001 err 0x00000000
+pcie: 5:   21: apply-262 t=0 mark 0xa0220000 er0 wp 0x00000000 ch20 wp 0x00000000 ee 0x00000002 err 0xcafecace
+pcie: 5:   21: apply-262 t=50 mark 0x00005a5a er0 wp 0x00000000 ch20 wp 0x00000000 ee 0x00000002 err 0xcafecace
+pcie: 5:   21: apply-262 t=50 mark 0xa0220000 er0 wp 0x00000000 ch20 wp 0x00000000 ee 0x00000002 err 0xcafecace
+pcie: 5:   21: apply-258 er0 rp 0xa0204000 wp 0xa0204000 ring 00000000 00000000 00000000 00000000; ch20 rp 0xa020c000 wp 0xa020c000
+pcie: 5:   21: mhi ctxt 0xa0200000 er 0xa0200800 cmd 0xa0200c00, cfg 0x00800080 -> 0x00030080

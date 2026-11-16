@@ -1,0 +1,14 @@
+p='/root/hakios/xnu-src/xnu-8796.121.2/bsd/dev/hakios.pcie.c'
+s=open(p).read()
+old='''hakios_pcie_init(void)
+{
+'''
+new='''hakios_pcie_init(void)
+{
+	return;         /* apply-159: the whole body left out, p149 hung with pcie_probe=1 */
+'''
+print("count:", s.count(old))
+if s.count(old)==1:
+    s = s.replace(old, new)
+    open(p,'w').write(s)
+    print("patched")

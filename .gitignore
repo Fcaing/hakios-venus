@@ -1,0 +1,45 @@
+# ---- 大体积 / 二进制产物（绝不要提交） ----
+*.apfs
+*.bin
+*.img
+*.im4p
+*.dmb
+*.macho
+*.o
+*.a
+*.dylib
+*.efi
+*.ipa
+*.ipsw
+
+# ---- 厂商固件（自行从设备提取，见 THIRD_PARTY.md） ----
+amss*.bin
+m3.bin
+regdb.bin
+bdwlan.*
+fw/
+firmware/
+
+# ---- 每轮实验的原始日志与 payload（几十 MB，用你自己的私有副本） ----
+p[0-9][0-9][0-9].txt
+ld-p*.bin
+cur-p*.bin
+p-p*.bin
+*.log
+*.dmp
+
+# ---- 工具链与临时 ----
+.tmp*/
+tmp/
+__pycache__/
+*.pyc
+tools/platform-tools/
+tools/usb_driver/
+distro/
+
+# ---- 编辑器 ----
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

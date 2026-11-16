@@ -1,0 +1,8 @@
+# drivers/pci/conf: the PCIe root complex.
+# CONFIG_HAKIOS_<NAME>=y in a defconfig builds a driver into the kernel; "standard" files are always built.
+# tools/hakios-config.py reads this file; docs/drivers-config.md says what each word means and how it reaches XNU.
+
+driver PCIE
+	file    bsd/dev/hakios.pcie.c
+	help    the PCIe root complex of this phone (pcie=1, pcie_step=N): its clocks, power switch, PHY and its
+	help    reset line, and the configuration space of what is on the other side -- here a QCA6490 Wi-Fi
